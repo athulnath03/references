@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCLA Centennial Timeline Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #2774AE; /* UCLA Blue */
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #0F1E3B; /* UCLA Darker Blue */
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFD100; /* UCLA Gold */
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #FFD100;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #FFD100;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .main-container {
+            margin-top: 80px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .timeline-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        /* Timeline central line */
+        .timeline-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(-50%);
+        }
+
+        .timeline-items {
+            position: relative;
+        }
+
+        .timeline-item {
+            margin-bottom: 100px;
+            position: relative;
+            opacity: 0.3;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .timeline-item.active {
+            opacity: 1;
+        }
+
+        /* Alternate items left and right */
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-left: auto;
+            margin-right: 70px;
+            text-align: right;
+            transform: translateX(50px);
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: 70px;
+            text-align: left;
+            transform: translateX(-50px);
+        }
+
+        .timeline-item.active .timeline-content {
+            transform: translateX(0);
+        }
+
+        .timeline-year {
+            position: absolute;
+            top: 0;
+            left: calc(50% - 120px); /* Moved to left side */
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            font-size: 42px;
+            z-index: 10;
+            transition: transform 0.3s ease, color 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline-item.active .timeline-year {
+            color: #FFD100;
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: #FFD100;
+            border-radius: 50%;
+            z-index: 5;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .timeline-item.active .timeline-dot {
+            transform: translateX(-50%) scale(1.5);
+            box-shadow: 0 0 15px rgba(255, 209, 0, 0.8);
+        }
+
+        .timeline-content {
+            width: calc(50% - 50px);
+            background-color: rgba(15, 30, 59, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.5s ease, box-shadow 0.3s ease;
+        }
+
+        .timeline-item.active .timeline-content {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .timeline-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #FFD100;
+        }
+
+        .timeline-description {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .timeline-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-item.active .timeline-image:hover {
+            transform: scale(1.03);
+        }
+
+        .timeline-controls {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background-color: rgba(15, 30, 59, 0.8);
+            border: 2px solid #FFD100;
+            color: #FFD100;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background-color: #FFD100;
+            color: #0F1E3B;
+            transform: scale(1.1);
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            animation: fadeInOut 2s infinite;
+            display: none; /* Hide this element */
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Animations for scroll reveal */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .timeline-line {
+                left: 20px;
+            }
+            
+            .timeline-year {
+                left: 20px;
+                transform: translateX(-50%);
+                font-size: 32px;
+            }
+            
+            .timeline-dot {
+                left: 20px;
+            }
+            
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px;
+                margin-right: 0;
+                text-align: left;
+                transform: translateX(30px);
+            }
+            
+            .timeline-item.active .timeline-content {
+                transform: translateX(0);
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">UCLA 100</div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Timeline</a>
+                <a href="#">Stories</a>
+                <a href="#">Gallery</a>
+                <a href="#">About</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            
+            <div class="timeline-items" id="timeline-items">
+                <div class="timeline-item" data-year="1919">
+                    <div class="timeline-year">1919</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">UCLA Founded</h2>
+                        <img src="/api/placeholder/600/300" alt="UCLA Founding" class="timeline-image">
+                        <p class="timeline-description">
+                            On May 23, 1919, Governor William D. Stephens signed Assembly Bill 626 into law, establishing the Southern Branch of the University of California - which would later become UCLA. The campus opened its doors to 250 junior college students and 1,078 teacher training students.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1927">
+                    <div class="timeline-year">1927</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">Westwood Campus</h2>
+                        <img src="/api/placeholder/600/300" alt="Westwood Campus" class="timeline-image">
+                        <p class="timeline-description">
+                            The Regents of the University of California selected a 384-acre site in Westwood as the future home of UCLA. Construction began on the campus, with the first four buildings designed in the Romanesque Revival style with distinctive red brick facades.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1929">
+                    <div class="timeline-year">1929</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">Moving to Westwood</h2>
+                        <img src="/api/placeholder/600/300" alt="UCLA Moving to Westwood" class="timeline-image">
+                        <p class="timeline-description">
+                            UCLA officially moved to its new Westwood campus. The original campus included Royce Hall, the Physics-Biology Building (now Humanities Building), the Chemistry Building (now Haines Hall), and the Library (now Powell Library).
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1934">
+                    <div class="timeline-year">1934</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">Kerckhoff Hall Completed</h2>
+                        <img src="/api/placeholder/600/300" alt="Kerckhoff Hall" class="timeline-image">
+                        <p class="timeline-description">
+                            Kerckhoff Hall, named after businessman and philanthropist William G. Kerckhoff, was completed. It became the first student union building on campus, housing student government offices, meeting rooms, and a coffee shop.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1948">
+                    <div class="timeline-year">1948</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">UCLA Medical School</h2>
+                        <img src="/api/placeholder/600/300" alt="UCLA Medical School" class="timeline-image">
+                        <p class="timeline-description">
+                            The UCLA School of Medicine (now the David Geffen School of Medicine) was established, admitting its first class of 28 students. This major expansion helped transform UCLA into a comprehensive university with significant research capabilities.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1955">
+                    <div class="timeline-year">1955</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">First NCAA Championship</h2>
+                        <img src="/api/placeholder/600/300" alt="UCLA Basketball" class="timeline-image">
+                        <p class="timeline-description">
+                            UCLA won its first NCAA championship in men's basketball. This marked the beginning of what would become one of the most successful athletic programs in collegiate sports, eventually leading to a record 118 NCAA team championships.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1969">
+                    <div class="timeline-year">1969</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">UCLA's 50th Anniversary</h2>
+                        <img src="/api/placeholder/600/300" alt="UCLA 50th Anniversary" class="timeline-image">
+                        <p class="timeline-description">
+                            UCLA celebrated its 50th anniversary, marking half a century of academic excellence and growth. By this time, UCLA had established itself as one of the premier public research universities in the United States.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1984">
+                    <div class="timeline-year">1984</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">Olympic Host</h2>
+                        <img src="/api/placeholder/600/300" alt="1984 Olympics at UCLA" class="timeline-image">
+                        <p class="timeline-description">
+                            UCLA served as the Olympic Village for the 1984 Summer Olympics in Los Angeles. The campus hosted the athletes' accommodations, while Pauley Pavilion was used as a venue for gymnastics competitions. UCLA's athletic facilities received significant upgrades in preparation.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="1995">
+                    <div class="timeline-year">1995</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">Internet Pioneer</h2>
+                        <img src="/api/placeholder/600/300" alt="Internet at UCLA" class="timeline-image">
+                        <p class="timeline-description">
+                            UCLA celebrated the 25th anniversary of sending the first message over the ARPANET, the precursor to the internet. In 1969, UCLA professor Leonard Kleinrock and his team sent the first message from UCLA to Stanford Research Institute, marking the birth of the internet.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" data-year="2019">
+                    <div class="timeline-year">2019</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h2 class="timeline-title">Centennial Celebration</h2>
+                        <img src="/api/placeholder/600/300" alt="UCLA Centennial" class="timeline-image">
+                        <p class="timeline-description">
+                            UCLA celebrated its centennial anniversary with a year-long series of events, exhibitions, and initiatives. The theme "UCLA 100: Lighting the Way" highlighted the university's contributions over the past century and its vision for the future.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Timeline Controls -->
+    <div class="timeline-controls">
+        <button class="control-btn" id="prevBtn">↑</button>
+        <button class="control-btn" id="nextBtn">↓</button>
+    </div>
+    
+    <!-- Year markers removed as requested -->
+    
+    <!-- Removed scroll indicator -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            let currentIndex = 0;
+            const totalItems = timelineItems.length;
+            
+            // Create year markers - removed as requested
+            
+            // Initialize
+            updateTimeline();
+            
+            // Removed auto-hide scroll indicator code
+            
+            // Activate first item
+            timelineItems[0].classList.add('active');
+            
+            // Event listeners
+            prevBtn.addEventListener('click', showPrevious);
+            nextBtn.addEventListener('click', showNext);
+            
+            // Year markers navigation - removed as requested
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowDown') {
+                    showNext();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    showPrevious();
+                    e.preventDefault();
+                }
+            });
+            
+            // Scroll navigation with Intersection Observer
+            const options = {
+                root: null,
+                rootMargin: '-40% 0px -40% 0px',
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Find the index of this element
+                        timelineItems.forEach((item, index) => {
+                            if (item === entry.target) {
+                                if (currentIndex !== index) {
+                                    currentIndex = index;
+                                    updateTimeline();
+                                }
+                            }
+                        });
+                    }
+                });
+            }, options);
+            
+            // Observe all timeline items
+            timelineItems.forEach(item => {
+                observer.observe(item);
+            });
+            
+            // Standard scroll fallback for browsers that don't support Intersection Observer
+            let isScrolling = false;
+            window.addEventListener('scroll', function() {
+                if (!isScrolling && !('IntersectionObserver' in window)) {
+                    window.requestAnimationFrame(function() {
+                        checkTimelineItemsVisibility();
+                        isScrolling = false;
+                    });
+                }
+                isScrolling = true;
+            });
+            
+            function checkTimelineItemsVisibility() {
+                const windowHeight = window.innerHeight;
+                let closestItem = 0;
+                let closestDistance = Infinity;
+                
+                timelineItems.forEach((item, index) => {
+                    const rect = item.getBoundingClientRect();
+                    const distanceToCenter = Math.abs(rect.top + rect.height/2 - windowHeight/2);
+                    
+                    if (distanceToCenter < closestDistance) {
+                        closestDistance = distanceToCenter;
+                        closestItem = index;
+                    }
+                });
+                
+                if (closestItem !== currentIndex) {
+                    currentIndex = closestItem;
+                    updateTimeline();
+                }
+            }
+            
+            function showNext() {
+                if (currentIndex < totalItems - 1) {
+                    currentIndex++;
+                    updateTimeline();
+                    scrollToCurrentItem();
+                }
+            }
+            
+            function showPrevious() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateTimeline();
+                    scrollToCurrentItem();
+                }
+            }
+            
+            function scrollToCurrentItem() {
+                timelineItems[currentIndex].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+            
+            function updateTimeline() {
+                // Update active state for timeline items
+                timelineItems.forEach((item, index) => {
+                    if (index === currentIndex) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Add initial animation to timeline items
+            timelineItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.animation = 'fadeIn 1s forwards';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
