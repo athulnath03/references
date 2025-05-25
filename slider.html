@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Timeline Slider</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+
+        .slider-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+        .year-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+
+        .top-label {
+            margin-bottom: 0.5rem;
+        }
+
+
+        .bottom-label {
+            margin-top: 0.5rem;
+        }
+
+
+        .slider-wrapper {
+            position: relative;
+        }
+
+
+        .slider-vertical {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 2px;
+            height: 320px;
+            background: #3b82f6;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+
+        .slider-vertical::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+
+        .slider-vertical::-webkit-slider-thumb:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+
+        .slider-vertical::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+
+        .slider-vertical::-moz-range-thumb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: none;
+        }
+
+
+        .slider-vertical::-moz-range-thumb:hover {
+            transform: scale(1.05);
+        }
+
+
+        .slider-vertical::-moz-range-thumb:active {
+            transform: scale(1.1);
+        }
+
+
+        .slider-vertical::-moz-range-track {
+            background: #3b82f6;
+            height: 2px;
+            border: none;
+        }
+
+
+        .tooltip {
+            position: absolute;
+            left: -5rem;
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            transform: translateY(-50%);
+            transition: top 0s, transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease-out;
+        }
+
+
+        .tooltip.dragging {
+            transform: translateY(-50%) scale(1.1) translateX(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: top 0s, transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.1s ease-out;
+        }
+
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(100%, -50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid #3b82f6;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+
+        .year-text {
+            display: inline-block;
+            transition: all 0.3s ease-out;
+        }
+
+
+        .year-text.pulsing {
+            animation: pulse 1.5s ease-in-out infinite;
+            transition: all 0.075s ease-out;
+        }
+
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+
+        /* Firefox specific styles */
+        .slider-vertical {
+            -moz-appearance: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <!-- Top year label -->
+        <div class="year-label top-label" id="maxYear">2024</div>
+        
+        <!-- Slider wrapper -->
+        <div class="slider-wrapper">
+            <!-- Vertical slider -->
+            <input 
+                type="range" 
+                id="timelineSlider"
+                class="slider-vertical" 
+                min="1985" 
+                max="2024" 
+                value="2000"
+            />
+            
+            <!-- Tooltip attached to thumb -->
+            <div class="tooltip" id="tooltip">
+                <span class="year-text" id="yearText">2000</span>
+            </div>
+        </div>
+        
+        <!-- Bottom year label -->
+        <div class="year-label bottom-label" id="minYear">1985</div>
+    </div>
+
+
+    <script>
+        const slider = document.getElementById('timelineSlider');
+        const tooltip = document.getElementById('tooltip');
+        const yearText = document.getElementById('yearText');
+        const minYear = 1985;
+        const maxYear = 2024;
+        let isDragging = false;
+        let dragTimeout;
+
+
+        function updateTooltipPosition() {
+            const year = parseInt(slider.value);
+            const percentage = ((year - minYear) / (maxYear - minYear)) * 100;
+            const tooltipPosition = 100 - percentage; // Invert for correct positioning
+            
+            tooltip.style.top = `${tooltipPosition}%`;
+            yearText.textContent = year;
+        }
+
+
+        function handleDragStart() {
+            isDragging = true;
+            tooltip.classList.add('dragging');
+            yearText.classList.add('pulsing');
+            
+            // Clear any existing timeout
+            if (dragTimeout) {
+                clearTimeout(dragTimeout);
+            }
+        }
+
+
+        function handleDragEnd() {
+            // Add a small delay for smoother transition
+            dragTimeout = setTimeout(() => {
+                isDragging = false;
+                tooltip.classList.remove('dragging');
+                yearText.classList.remove('pulsing');
+            }, 100);
+        }
+
+
+        // Event listeners
+        slider.addEventListener('input', updateTooltipPosition);
+        slider.addEventListener('mousedown', handleDragStart);
+        slider.addEventListener('mouseup', handleDragEnd);
+        slider.addEventListener('touchstart', handleDragStart);
+        slider.addEventListener('touchend', handleDragEnd);
+
+
+        // Handle mouse leave to ensure drag state is reset
+        slider.addEventListener('mouseleave', () => {
+            if (isDragging) {
+                handleDragEnd();
+            }
+        });
+
+
+        // Initialize tooltip position
+        updateTooltipPosition();
+    </script>
+</body>
+</html>
