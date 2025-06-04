@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Rocket Loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Simple stars */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        .star:nth-child(1) { width: 2px; height: 2px; top: 20%; left: 20%; }
+        .star:nth-child(2) { width: 1px; height: 1px; top: 30%; left: 70%; animation-delay: 1s; }
+        .star:nth-child(3) { width: 2px; height: 2px; top: 70%; left: 30%; animation-delay: 2s; }
+        .star:nth-child(4) { width: 1px; height: 1px; top: 80%; left: 80%; animation-delay: 0.5s; }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* Loading container */
+        .loading-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Rocket container */
+        .rocket-container {
+            position: relative;
+            margin-bottom: 50px;
+            animation: hover 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes hover {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-5px); }
+        }
+
+        /* Simple rocket SVG */
+        .rocket {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.3));
+        }
+
+        /* Simplified exhaust flame - positioned below rocket */
+        .exhaust {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 0, 0.9) 0%,
+                rgba(255, 140, 0, 0.8) 50%,
+                rgba(255, 69, 0, 0.6) 100%);
+            border-radius: 50% 50% 0 0 / 30% 30% 70% 70%;
+            animation: flame 0.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes flame {
+            0% { 
+                transform: translateX(-50%) scaleY(1) scaleX(1);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: translateX(-50%) scaleY(1.2) scaleX(0.9);
+                opacity: 1;
+            }
+        }
+
+        /* Loading text */
+        .loading-text {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        /* Loading dots */
+        .loading-dots {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+        }
+
+        .dot {
+            animation: dot 1.5s infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes dot {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
+
+        /* Launch animation */
+        .launch {
+            animation: takeOff 2s ease-in forwards !important;
+        }
+
+        @keyframes takeOff {
+            0% {
+                transform: translateY(0px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120vh) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* Enhanced flame during launch */
+        .launch .exhaust {
+            height: 60px;
+            width: 25px;
+            animation: flameLaunch 0.1s ease-in-out infinite alternate;
+        }
+
+        @keyframes flameLaunch {
+            0% { 
+                transform: translateX(-50%) scaleY(1.5) scaleX(1);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateX(-50%) scaleY(1.8) scaleX(0.8);
+                opacity: 0.9;
+            }
+        }
+
+        /* Loading complete state */
+        .loading-complete {
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simple stars -->
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+
+    <!-- Loading container -->
+    <div class="loading-container">
+        <!-- Rocket -->
+        <div class="rocket-container">
+            <svg class="rocket" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Rocket body -->
+                <ellipse cx="50" cy="50" rx="10" ry="20" fill="#e8e8e8"/>
+                
+                <!-- Rocket nose -->
+                <path d="M 40 30 L 50 15 L 60 30 Z" fill="#ff6b6b"/>
+                
+                <!-- Window -->
+                <circle cx="50" cy="35" r="4" fill="#87ceeb"/>
+                
+                <!-- Fins -->
+                <path d="M 40 65 L 35 75 L 45 70 Z" fill="#4ecdc4"/>
+                <path d="M 60 65 L 65 75 L 55 70 Z" fill="#4ecdc4"/>
+            </svg>
+            
+            <!-- Exhaust flame positioned below rocket -->
+            <div class="exhaust"></div>
+        </div>
+
+        <!-- Loading text -->
+        <h1 class="loading-text" id="loadingText">Loading</h1>
+
+        <!-- Loading dots -->
+        <div class="loading-dots">
+            <span class="dot">•</span>
+            <span class="dot">•</span>
+            <span class="dot">•</span>
+        </div>
+    </div>
+
+    <script>
+        let loadingComplete = false;
+        
+        // Simulate loading process
+        setTimeout(() => {
+            launchRocket();
+        }, 3000);
+
+        function launchRocket() {
+            if (loadingComplete) return;
+            loadingComplete = true;
+            
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = 'Launch!';
+            
+            const rocketContainer = document.querySelector('.rocket-container');
+            rocketContainer.classList.add('launch');
+            
+            setTimeout(() => {
+                document.body.classList.add('loading-complete');
+                
+                setTimeout(() => {
+                    document.body.style.display = 'none';
+                    console.log('🚀 Loading complete!');
+                }, 1000);
+            }, 500);
+        }
+
+        // Public function to trigger loading completion manually
+        window.completeLoading = function() {
+            launchRocket();
+        };
+    </script>
+</body>
+</html>

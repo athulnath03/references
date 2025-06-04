@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f3460 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Stars background */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        .star:nth-child(1) { width: 2px; height: 2px; top: 20%; left: 10%; animation-delay: 0s; }
+        .star:nth-child(2) { width: 1px; height: 1px; top: 30%; left: 80%; animation-delay: 0.5s; }
+        .star:nth-child(3) { width: 3px; height: 3px; top: 60%; left: 20%; animation-delay: 1s; }
+        .star:nth-child(4) { width: 2px; height: 2px; top: 80%; left: 70%; animation-delay: 1.5s; }
+        .star:nth-child(5) { width: 1px; height: 1px; top: 15%; left: 60%; animation-delay: 2s; }
+        .star:nth-child(6) { width: 2px; height: 2px; top: 70%; left: 90%; animation-delay: 0.3s; }
+        .star:nth-child(7) { width: 1px; height: 1px; top: 40%; left: 15%; animation-delay: 1.2s; }
+        .star:nth-child(8) { width: 3px; height: 3px; top: 90%; left: 40%; animation-delay: 0.8s; }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Loading container */
+        .loading-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Rocket container */
+        .rocket-container {
+            position: relative;
+            margin-bottom: 40px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+
+        /* Rocket SVG */
+        .rocket {
+            width: 120px;
+            height: 120px;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.5));
+        }
+
+        /* Exhaust flame */
+        .exhaust {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 60px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500, #ff4757);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: flame 0.3s ease-in-out infinite alternate;
+            filter: blur(1px);
+        }
+
+        @keyframes flame {
+            0% { 
+                transform: translateX(-50%) scaleY(1) scaleX(1);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+                opacity: 1;
+            }
+        }
+
+        /* Exhaust particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: particle 1s linear infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 45%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 55%;
+            animation-delay: 0.3s;
+        }
+
+        .particle:nth-child(3) {
+            left: 50%;
+            animation-delay: 0.6s;
+        }
+
+        @keyframes particle {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Loading text */
+        .loading-text {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Launch animation */
+        .launch {
+            animation: launchRocket 2s ease-in forwards;
+        }
+
+        @keyframes launchRocket {
+            0% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(10deg) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* Loading complete state */
+        .loading-complete {
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Loading dots */
+        .loading-dots {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .dot {
+            animation: dot 1.5s infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes dot {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
+
+        /* Orbital rings */
+        .orbital-ring {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+
+        .ring-1 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 8s;
+        }
+
+        .ring-2 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 12s;
+            animation-direction: reverse;
+        }
+
+        @keyframes rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .loading-text {
+                font-size: 2rem;
+            }
+            
+            .progress-container {
+                width: 250px;
+            }
+            
+            .rocket {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars background -->
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+
+    <!-- Orbital rings -->
+    <div class="orbital-ring ring-1"></div>
+    <div class="orbital-ring ring-2"></div>
+
+    <!-- Loading container -->
+    <div class="loading-container">
+        <!-- Rocket -->
+        <div class="rocket-container">
+            <svg class="rocket" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Rocket body -->
+                <ellipse cx="50" cy="50" rx="12" ry="25" fill="#e0e0e0" stroke="#ccc" stroke-width="1"/>
+                
+                <!-- Rocket nose -->
+                <path d="M 38 25 L 50 10 L 62 25 Z" fill="#ff6b6b"/>
+                
+                <!-- Rocket fins -->
+                <path d="M 38 65 L 32 75 L 42 70 Z" fill="#4ecdc4"/>
+                <path d="M 62 65 L 68 75 L 58 70 Z" fill="#4ecdc4"/>
+                
+                <!-- Window -->
+                <circle cx="50" cy="35" r="6" fill="#87ceeb" stroke="#5f9ea0" stroke-width="1"/>
+                <circle cx="50" cy="35" r="4" fill="#b0e0e6" opacity="0.7"/>
+                
+                <!-- Details -->
+                <rect x="47" y="45" width="6" height="15" fill="#ff9800" rx="2"/>
+                <rect x="45" y="48" width="10" height="2" fill="#ff5722"/>
+                <rect x="45" y="52" width="10" height="2" fill="#ff5722"/>
+                <rect x="45" y="56" width="10" height="2" fill="#ff5722"/>
+            </svg>
+            
+            <!-- Exhaust flame -->
+            <div class="exhaust"></div>
+            
+            <!-- Exhaust particles -->
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <!-- Loading text -->
+        <h1 class="loading-text" id="loadingText">LOADING</h1>
+
+        <!-- Loading dots -->
+        <div class="loading-dots">
+            <span class="dot">•</span>
+            <span class="dot">•</span>
+            <span class="dot">•</span>
+        </div>
+    </div>
+
+    <script>
+        // Simulate loading states
+        let loadingComplete = false;
+        
+        // Simulate loading process (replace with your actual loading logic)
+        setTimeout(() => {
+            // Change text to "LAUNCHING"
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = 'LAUNCHING';
+            
+            // Add launch animation to rocket
+            const rocketContainer = document.querySelector('.rocket-container');
+            rocketContainer.classList.add('launch');
+            
+            // Fade out the entire loading screen after rocket launches
+            setTimeout(() => {
+                document.body.classList.add('loading-complete');
+                
+                // Hide loading screen completely after fade
+                setTimeout(() => {
+                    document.body.style.display = 'none';
+                    // Here you would show your main content
+                    console.log('Loading complete! Show main content now.');
+                }, 1000);
+            }, 500);
+            
+        }, 3000); // Loading takes 3 seconds
+
+        // Add some interactive stars
+        function createRandomStar() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            document.querySelector('.stars').appendChild(star);
+        }
+
+        // Add more random stars
+        for (let i = 0; i < 20; i++) {
+            createRandomStar();
+        }
+        
+        // Optional: Provide a function to trigger loading completion manually
+        window.completeLoading = function() {
+            if (!loadingComplete) {
+                loadingComplete = true;
+                const loadingText = document.getElementById('loadingText');
+                loadingText.textContent = 'LAUNCHING';
+                
+                const rocketContainer = document.querySelector('.rocket-container');
+                rocketContainer.classList.add('launch');
+                
+                setTimeout(() => {
+                    document.body.classList.add('loading-complete');
+                    setTimeout(() => {
+                        document.body.style.display = 'none';
+                        console.log('Loading complete! Show main content now.');
+                    }, 1000);
+                }, 500);
+            }
+        };
+    </script>
+</body>
+</html>
